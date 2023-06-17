@@ -1,0 +1,393 @@
+<html>
+<head>
+<title>Gym.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6a8759;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Gym.py</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">sqlite3</span>
+
+<span class="s1">conn = sqlite3.connect(</span><span class="s2">'gym_management.db'</span><span class="s1">)</span>
+<span class="s1">cursor = conn.cursor()</span>
+
+<span class="s1">cursor.execute(</span><span class="s2">'''CREATE TABLE IF NOT EXISTS members ( 
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    id_card TEXT, 
+                    name TEXT, 
+                    surname TEXT, 
+                    age INTEGER, 
+                    number TEXT, 
+                    gender TEXT 
+                )'''</span><span class="s1">)</span>
+
+<span class="s1">cursor.execute(</span><span class="s2">'''CREATE TABLE IF NOT EXISTS trainers ( 
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    name TEXT, 
+                    program TEXT 
+                )'''</span><span class="s1">)</span>
+
+<span class="s1">cursor.execute(</span><span class="s2">'''CREATE TABLE IF NOT EXISTS staff ( 
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    name TEXT, 
+                    surname TEXT, 
+                    shift TEXT, 
+                    number TEXT 
+                )'''</span><span class="s1">)</span>
+
+<span class="s1">cursor.execute(</span><span class="s2">'''CREATE TABLE IF NOT EXISTS equipment ( 
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    name TEXT 
+                )'''</span><span class="s1">)</span>
+
+<span class="s0">class </span><span class="s1">Member:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">id_card</span><span class="s0">, </span><span class="s1">name</span><span class="s0">, </span><span class="s1">surname</span><span class="s0">, </span><span class="s1">age</span><span class="s0">, </span><span class="s1">number</span><span class="s0">, </span><span class="s1">gender):</span>
+        <span class="s1">self.id_card = id_card</span>
+        <span class="s1">self.name = name</span>
+        <span class="s1">self.surname = surname</span>
+        <span class="s1">self.age = age</span>
+        <span class="s1">self.number = number</span>
+        <span class="s1">self.gender = gender</span>
+
+    <span class="s0">def </span><span class="s1">add_member(self):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;INSERT INTO members (id_card, name, surname, age, number, gender) VALUES (?, ?, ?, ?, ?, ?)&quot;</span><span class="s0">,</span>
+                       <span class="s1">(self.id_card</span><span class="s0">, </span><span class="s1">self.name</span><span class="s0">, </span><span class="s1">self.surname</span><span class="s0">, </span><span class="s1">self.age</span><span class="s0">, </span><span class="s1">self.number</span><span class="s0">, </span><span class="s1">self.gender))</span>
+        <span class="s1">conn.commit()</span>
+
+    <span class="s1">@staticmethod</span>
+    <span class="s0">def </span><span class="s1">view_all_members():</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;SELECT * FROM members&quot;</span><span class="s1">)</span>
+        <span class="s1">rows = cursor.fetchall()</span>
+        <span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">rows:</span>
+            <span class="s1">print(row)</span>
+
+    <span class="s0">def </span><span class="s1">update_member(self</span><span class="s0">, </span><span class="s1">member_id):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;UPDATE members SET id_card=?, name=?, surname=?, age=?, number=?, gender=? WHERE id=?&quot;</span><span class="s0">,</span>
+                       <span class="s1">(self.id_card</span><span class="s0">, </span><span class="s1">self.name</span><span class="s0">, </span><span class="s1">self.surname</span><span class="s0">, </span><span class="s1">self.age</span><span class="s0">, </span><span class="s1">self.number</span><span class="s0">, </span><span class="s1">self.gender</span><span class="s0">, </span><span class="s1">member_id))</span>
+        <span class="s1">conn.commit()</span>
+
+    <span class="s1">@staticmethod</span>
+    <span class="s0">def </span><span class="s1">delete_member(member_id):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;DELETE FROM members WHERE id=?&quot;</span><span class="s0">, </span><span class="s1">(member_id</span><span class="s0">,</span><span class="s1">))</span>
+        <span class="s1">conn.commit()</span>
+
+<span class="s0">class </span><span class="s1">Trainer:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">name</span><span class="s0">, </span><span class="s1">program):</span>
+        <span class="s1">self.name = name</span>
+        <span class="s1">self.program = program</span>
+
+    <span class="s0">def </span><span class="s1">add_trainer(self):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;INSERT INTO trainers (name, program) VALUES (?, ?)&quot;</span><span class="s0">,</span>
+                       <span class="s1">(self.name</span><span class="s0">, </span><span class="s1">self.program))</span>
+        <span class="s1">conn.commit()</span>
+
+    <span class="s1">@staticmethod</span>
+    <span class="s0">def </span><span class="s1">view_all_trainers():</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;SELECT * FROM trainers&quot;</span><span class="s1">)</span>
+        <span class="s1">rows = cursor.fetchall()</span>
+        <span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">rows:</span>
+            <span class="s1">print(row)</span>
+
+    <span class="s0">def </span><span class="s1">update_trainer(self</span><span class="s0">, </span><span class="s1">trainer_id):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;UPDATE trainers SET name=?, program=? WHERE id=?&quot;</span><span class="s0">,</span>
+                       <span class="s1">(self.name</span><span class="s0">, </span><span class="s1">self.program</span><span class="s0">, </span><span class="s1">trainer_id))</span>
+        <span class="s1">conn.commit()</span>
+
+    <span class="s1">@staticmethod</span>
+    <span class="s0">def </span><span class="s1">delete_trainer(trainer_id):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;DELETE FROM trainers WHERE id=?&quot;</span><span class="s0">, </span><span class="s1">(trainer_id</span><span class="s0">,</span><span class="s1">))</span>
+        <span class="s1">conn.commit()</span>
+
+<span class="s0">class </span><span class="s1">Staff:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">name</span><span class="s0">, </span><span class="s1">surname</span><span class="s0">, </span><span class="s1">shift</span><span class="s0">, </span><span class="s1">number):</span>
+        <span class="s1">self.name = name</span>
+        <span class="s1">self.surname = surname</span>
+        <span class="s1">self.shift = shift</span>
+        <span class="s1">self.number = number</span>
+
+    <span class="s0">def </span><span class="s1">add_staff(self):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;INSERT INTO staff (name, surname, shift, number) VALUES (?, ?, ?, ?)&quot;</span><span class="s0">,</span>
+                       <span class="s1">(self.name</span><span class="s0">, </span><span class="s1">self.surname</span><span class="s0">, </span><span class="s1">self.shift</span><span class="s0">, </span><span class="s1">self.number))</span>
+        <span class="s1">conn.commit()</span>
+
+    <span class="s1">@staticmethod</span>
+    <span class="s0">def </span><span class="s1">view_all_staff():</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;SELECT * FROM staff&quot;</span><span class="s1">)</span>
+        <span class="s1">rows = cursor.fetchall()</span>
+        <span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">rows:</span>
+            <span class="s1">print(row)</span>
+
+    <span class="s0">def </span><span class="s1">update_staff(self</span><span class="s0">, </span><span class="s1">staff_id):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;UPDATE staff SET name=?, surname=?, shift=?, number=? WHERE id=?&quot;</span><span class="s0">,</span>
+                       <span class="s1">(self.name</span><span class="s0">, </span><span class="s1">self.surname</span><span class="s0">, </span><span class="s1">self.shift</span><span class="s0">, </span><span class="s1">self.number</span><span class="s0">, </span><span class="s1">staff_id))</span>
+        <span class="s1">conn.commit()</span>
+
+    <span class="s1">@staticmethod</span>
+    <span class="s0">def </span><span class="s1">delete_staff(staff_id):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;DELETE FROM staff WHERE id=?&quot;</span><span class="s0">, </span><span class="s1">(staff_id</span><span class="s0">,</span><span class="s1">))</span>
+        <span class="s1">conn.commit()</span>
+
+<span class="s0">class </span><span class="s1">Equipment:</span>
+    <span class="s0">def </span><span class="s1">__init__(self</span><span class="s0">, </span><span class="s1">name):</span>
+        <span class="s1">self.name = name</span>
+
+    <span class="s0">def </span><span class="s1">add_equipment(self):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;INSERT INTO equipment (name) VALUES (?)&quot;</span><span class="s0">, </span><span class="s1">(self.name</span><span class="s0">,</span><span class="s1">))</span>
+        <span class="s1">conn.commit()</span>
+
+    <span class="s1">@staticmethod</span>
+    <span class="s0">def </span><span class="s1">view_all_equipment():</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;SELECT * FROM equipment&quot;</span><span class="s1">)</span>
+        <span class="s1">rows = cursor.fetchall()</span>
+        <span class="s0">for </span><span class="s1">row </span><span class="s0">in </span><span class="s1">rows:</span>
+            <span class="s1">print(row)</span>
+
+    <span class="s1">@staticmethod</span>
+    <span class="s0">def </span><span class="s1">remove_equipment(equipment_id):</span>
+        <span class="s1">cursor.execute(</span><span class="s2">&quot;DELETE FROM equipment WHERE id=?&quot;</span><span class="s0">, </span><span class="s1">(equipment_id</span><span class="s0">,</span><span class="s1">))</span>
+        <span class="s1">conn.commit()</span>
+
+
+<span class="s0">def </span><span class="s1">display_menu():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** GYM MANAGEMENT SYSTEM MENU ***&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;1. Member Management&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;2. Trainer Management&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;3. Staff Management&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;4. Equipment Management&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;5. Exit&quot;</span><span class="s1">)</span>
+
+
+<span class="s0">def </span><span class="s1">display_member_menu():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** MEMBER MANAGEMENT MENU ***&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;1. Add New Member&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;2. View All Members&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;3. Update Member&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;4. Delete Member&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;5. Go Back&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">display_trainer_menu():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** TRAINER MANAGEMENT MENU ***&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;1. Add New Trainer&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;2. View All Trainers&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;3. Update Trainer&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;4. Delete Trainer&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;5. Go Back&quot;</span><span class="s1">)</span>
+
+
+<span class="s0">def </span><span class="s1">display_staff_menu():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** STAFF MANAGEMENT MENU ***&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;1. Add New Staff&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;2. View All Staff Members&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;3. Update Staff Member&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;4. Delete Staff Member&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;5. Go Back&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">display_equipment_menu():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** EQUIPMENT MANAGEMENT MENU ***&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;1. Add New Equipment&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;2. View All Equipment&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;3. Remove Equipment&quot;</span><span class="s1">)</span>
+    <span class="s1">print(</span><span class="s2">&quot;4. Go Back&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">add_member():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** ADD NEW MEMBER ***&quot;</span><span class="s1">)</span>
+    <span class="s1">id_card = input(</span><span class="s2">&quot;Enter ID Card: &quot;</span><span class="s1">)</span>
+    <span class="s1">name = input(</span><span class="s2">&quot;Enter Name: &quot;</span><span class="s1">)</span>
+    <span class="s1">surname = input(</span><span class="s2">&quot;Enter Surname: &quot;</span><span class="s1">)</span>
+    <span class="s1">age = int(input(</span><span class="s2">&quot;Enter Age: &quot;</span><span class="s1">))</span>
+    <span class="s1">number = input(</span><span class="s2">&quot;Enter Number: &quot;</span><span class="s1">)</span>
+    <span class="s1">gender = input(</span><span class="s2">&quot;Enter Gender: &quot;</span><span class="s1">)</span>
+    <span class="s1">member = Member(id_card</span><span class="s0">, </span><span class="s1">name</span><span class="s0">, </span><span class="s1">surname</span><span class="s0">, </span><span class="s1">age</span><span class="s0">, </span><span class="s1">number</span><span class="s0">, </span><span class="s1">gender)</span>
+    <span class="s1">member.add_member()</span>
+    <span class="s1">print(</span><span class="s2">&quot;Member added successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">view_all_members():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** VIEW ALL MEMBERS ***&quot;</span><span class="s1">)</span>
+    <span class="s1">Member.view_all_members()</span>
+
+<span class="s0">def </span><span class="s1">update_member():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** UPDATE MEMBER ***&quot;</span><span class="s1">)</span>
+    <span class="s1">member_id = int(input(</span><span class="s2">&quot;Enter Member ID to update: &quot;</span><span class="s1">))</span>
+    <span class="s1">id_card = input(</span><span class="s2">&quot;Enter ID Card: &quot;</span><span class="s1">)</span>
+    <span class="s1">name = input(</span><span class="s2">&quot;Enter Name: &quot;</span><span class="s1">)</span>
+    <span class="s1">surname = input(</span><span class="s2">&quot;Enter Surname: &quot;</span><span class="s1">)</span>
+    <span class="s1">age = int(input(</span><span class="s2">&quot;Enter Age: &quot;</span><span class="s1">))</span>
+    <span class="s1">number = input(</span><span class="s2">&quot;Enter Number: &quot;</span><span class="s1">)</span>
+    <span class="s1">gender = input(</span><span class="s2">&quot;Enter Gender: &quot;</span><span class="s1">)</span>
+    <span class="s1">member = Member(id_card</span><span class="s0">, </span><span class="s1">name</span><span class="s0">, </span><span class="s1">surname</span><span class="s0">, </span><span class="s1">age</span><span class="s0">, </span><span class="s1">number</span><span class="s0">, </span><span class="s1">gender)</span>
+    <span class="s1">member.update_member(member_id)</span>
+    <span class="s1">print(</span><span class="s2">&quot;Member updated successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">delete_member():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** DELETE MEMBER ***&quot;</span><span class="s1">)</span>
+    <span class="s1">member_id = int(input(</span><span class="s2">&quot;Enter Member ID to delete: &quot;</span><span class="s1">))</span>
+    <span class="s1">Member.delete_member(member_id)</span>
+    <span class="s1">print(</span><span class="s2">&quot;Member deleted successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">add_trainer():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** ADD NEW TRAINER ***&quot;</span><span class="s1">)</span>
+    <span class="s1">name = input(</span><span class="s2">&quot;Enter Name: &quot;</span><span class="s1">)</span>
+    <span class="s1">program = input(</span><span class="s2">&quot;Enter Program: &quot;</span><span class="s1">)</span>
+    <span class="s1">trainer = Trainer(name</span><span class="s0">, </span><span class="s1">program)</span>
+    <span class="s1">trainer.add_trainer()</span>
+    <span class="s1">print(</span><span class="s2">&quot;Trainer added successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">view_all_trainers():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** VIEW ALL TRAINERS ***&quot;</span><span class="s1">)</span>
+    <span class="s1">Trainer.view_all_trainers()</span>
+
+<span class="s0">def </span><span class="s1">update_trainer():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** UPDATE TRAINER ***&quot;</span><span class="s1">)</span>
+    <span class="s1">trainer_id = int(input(</span><span class="s2">&quot;Enter Trainer ID to update: &quot;</span><span class="s1">))</span>
+    <span class="s1">name = input(</span><span class="s2">&quot;Enter Name: &quot;</span><span class="s1">)</span>
+    <span class="s1">program = input(</span><span class="s2">&quot;Enter Program: &quot;</span><span class="s1">)</span>
+    <span class="s1">trainer = Trainer(name</span><span class="s0">, </span><span class="s1">program)</span>
+    <span class="s1">trainer.update_trainer(trainer_id)</span>
+    <span class="s1">print(</span><span class="s2">&quot;Trainer updated successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">delete_trainer():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** DELETE TRAINER ***&quot;</span><span class="s1">)</span>
+    <span class="s1">trainer_id = int(input(</span><span class="s2">&quot;Enter Trainer ID to delete: &quot;</span><span class="s1">))</span>
+    <span class="s1">Trainer.delete_trainer(trainer_id)</span>
+    <span class="s1">print(</span><span class="s2">&quot;Trainer deleted successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">add_staff():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** ADD NEW STAFF MEMBER ***&quot;</span><span class="s1">)</span>
+    <span class="s1">name = input(</span><span class="s2">&quot;Enter Name: &quot;</span><span class="s1">)</span>
+    <span class="s1">surname = input(</span><span class="s2">&quot;Enter Surname: &quot;</span><span class="s1">)</span>
+    <span class="s1">shift = input(</span><span class="s2">&quot;Enter Shift: &quot;</span><span class="s1">)</span>
+    <span class="s1">number = input(</span><span class="s2">&quot;Enter Number: &quot;</span><span class="s1">)</span>
+    <span class="s1">staff = Staff(name</span><span class="s0">, </span><span class="s1">surname</span><span class="s0">, </span><span class="s1">shift</span><span class="s0">, </span><span class="s1">number)</span>
+    <span class="s1">staff.add_staff()</span>
+    <span class="s1">print(</span><span class="s2">&quot;Staff member added successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">view_all_staff():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** VIEW ALL STAFF MEMBERS ***&quot;</span><span class="s1">)</span>
+    <span class="s1">Staff.view_all_staff()</span>
+
+<span class="s0">def </span><span class="s1">update_staff():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** UPDATE STAFF MEMBER ***&quot;</span><span class="s1">)</span>
+    <span class="s1">staff_id = int(input(</span><span class="s2">&quot;Enter Staff ID to update: &quot;</span><span class="s1">))</span>
+    <span class="s1">name = input(</span><span class="s2">&quot;Enter Name: &quot;</span><span class="s1">)</span>
+    <span class="s1">surname = input(</span><span class="s2">&quot;Enter Surname: &quot;</span><span class="s1">)</span>
+    <span class="s1">shift = input(</span><span class="s2">&quot;Enter Shift: &quot;</span><span class="s1">)</span>
+    <span class="s1">number = input(</span><span class="s2">&quot;Enter Number: &quot;</span><span class="s1">)</span>
+    <span class="s1">staff = Staff(name</span><span class="s0">, </span><span class="s1">surname</span><span class="s0">, </span><span class="s1">shift</span><span class="s0">, </span><span class="s1">number)</span>
+    <span class="s1">staff.update_staff(staff_id)</span>
+    <span class="s1">print(</span><span class="s2">&quot;Staff member updated successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">delete_staff():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** DELETE STAFF MEMBER ***&quot;</span><span class="s1">)</span>
+    <span class="s1">staff_id = int(input(</span><span class="s2">&quot;Enter Staff ID to delete: &quot;</span><span class="s1">))</span>
+    <span class="s1">Staff.delete_staff(staff_id)</span>
+    <span class="s1">print(</span><span class="s2">&quot;Staff member deleted successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">add_equipment():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** ADD NEW EQUIPMENT ***&quot;</span><span class="s1">)</span>
+    <span class="s1">name = input(</span><span class="s2">&quot;Enter Equipment Name: &quot;</span><span class="s1">)</span>
+    <span class="s1">equipment = Equipment(name)</span>
+    <span class="s1">equipment.add_equipment()</span>
+    <span class="s1">print(</span><span class="s2">&quot;Equipment added successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">def </span><span class="s1">view_all_equipment():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** VIEW ALL EQUIPMENT ***&quot;</span><span class="s1">)</span>
+    <span class="s1">Equipment.view_all_equipment()</span>
+
+<span class="s0">def </span><span class="s1">remove_equipment():</span>
+    <span class="s1">print(</span><span class="s2">&quot;</span><span class="s0">\n</span><span class="s2">*** REMOVE EQUIPMENT ***&quot;</span><span class="s1">)</span>
+    <span class="s1">equipment_id = int(input(</span><span class="s2">&quot;Enter Equipment ID to remove: &quot;</span><span class="s1">))</span>
+    <span class="s1">Equipment.remove_equipment(equipment_id)</span>
+    <span class="s1">print(</span><span class="s2">&quot;Equipment removed successfully!&quot;</span><span class="s1">)</span>
+
+<span class="s0">while True</span><span class="s1">:</span>
+    <span class="s1">display_menu()</span>
+    <span class="s1">choice = input(</span><span class="s2">&quot;Enter your choice (1-5): &quot;</span><span class="s1">)</span>
+
+    <span class="s0">if </span><span class="s1">choice == </span><span class="s2">'1'</span><span class="s1">:</span>
+        <span class="s0">while True</span><span class="s1">:</span>
+            <span class="s1">display_member_menu()</span>
+            <span class="s1">member_choice = input(</span><span class="s2">&quot;Enter your choice (1-5): &quot;</span><span class="s1">)</span>
+
+            <span class="s0">if </span><span class="s1">member_choice == </span><span class="s2">'1'</span><span class="s1">:</span>
+                <span class="s1">add_member()</span>
+            <span class="s0">elif </span><span class="s1">member_choice == </span><span class="s2">'2'</span><span class="s1">:</span>
+                <span class="s1">view_all_members()</span>
+            <span class="s0">elif </span><span class="s1">member_choice == </span><span class="s2">'3'</span><span class="s1">:</span>
+                <span class="s1">update_member()</span>
+            <span class="s0">elif </span><span class="s1">member_choice == </span><span class="s2">'4'</span><span class="s1">:</span>
+                <span class="s1">delete_member()</span>
+            <span class="s0">elif </span><span class="s1">member_choice == </span><span class="s2">'5'</span><span class="s1">:</span>
+                <span class="s0">break</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">print(</span><span class="s2">&quot;Invalid choice. Please enter a number between 1 and 5.&quot;</span><span class="s1">)</span>
+
+    <span class="s0">elif </span><span class="s1">choice == </span><span class="s2">'2'</span><span class="s1">:</span>
+        <span class="s0">while True</span><span class="s1">:</span>
+            <span class="s1">display_trainer_menu()</span>
+            <span class="s1">trainer_choice = input(</span><span class="s2">&quot;Enter your choice (1-5): &quot;</span><span class="s1">)</span>
+
+            <span class="s0">if </span><span class="s1">trainer_choice == </span><span class="s2">'1'</span><span class="s1">:</span>
+                <span class="s1">add_trainer()</span>
+            <span class="s0">elif </span><span class="s1">trainer_choice == </span><span class="s2">'2'</span><span class="s1">:</span>
+                <span class="s1">view_all_trainers()</span>
+            <span class="s0">elif </span><span class="s1">trainer_choice == </span><span class="s2">'3'</span><span class="s1">:</span>
+                <span class="s1">update_trainer()</span>
+            <span class="s0">elif </span><span class="s1">trainer_choice == </span><span class="s2">'4'</span><span class="s1">:</span>
+                <span class="s1">delete_trainer()</span>
+            <span class="s0">elif </span><span class="s1">trainer_choice == </span><span class="s2">'5'</span><span class="s1">:</span>
+                <span class="s0">break</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">print(</span><span class="s2">&quot;Invalid choice. Please enter a number between 1 and 5.&quot;</span><span class="s1">)</span>
+
+    <span class="s0">elif </span><span class="s1">choice == </span><span class="s2">'3'</span><span class="s1">:</span>
+        <span class="s0">while True</span><span class="s1">:</span>
+            <span class="s1">display_staff_menu()</span>
+            <span class="s1">staff_choice = input(</span><span class="s2">&quot;Enter your choice (1-5): &quot;</span><span class="s1">)</span>
+
+            <span class="s0">if </span><span class="s1">staff_choice == </span><span class="s2">'1'</span><span class="s1">:</span>
+                <span class="s1">add_staff()</span>
+            <span class="s0">elif </span><span class="s1">staff_choice == </span><span class="s2">'2'</span><span class="s1">:</span>
+                <span class="s1">view_all_staff()</span>
+            <span class="s0">elif </span><span class="s1">staff_choice == </span><span class="s2">'3'</span><span class="s1">:</span>
+                <span class="s1">update_staff()</span>
+            <span class="s0">elif </span><span class="s1">staff_choice == </span><span class="s2">'4'</span><span class="s1">:</span>
+                <span class="s1">delete_staff()</span>
+            <span class="s0">elif </span><span class="s1">staff_choice == </span><span class="s2">'5'</span><span class="s1">:</span>
+                <span class="s0">break</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">print(</span><span class="s2">&quot;Invalid choice. Please enter a number between 1 and 5.&quot;</span><span class="s1">)</span>
+
+    <span class="s0">elif </span><span class="s1">choice == </span><span class="s2">'4'</span><span class="s1">:</span>
+        <span class="s0">while True</span><span class="s1">:</span>
+            <span class="s1">display_equipment_menu()</span>
+            <span class="s1">equipment_choice = input(</span><span class="s2">&quot;Enter your choice (1-4): &quot;</span><span class="s1">)</span>
+
+            <span class="s0">if </span><span class="s1">equipment_choice == </span><span class="s2">'1'</span><span class="s1">:</span>
+                <span class="s1">add_equipment()</span>
+            <span class="s0">elif </span><span class="s1">equipment_choice == </span><span class="s2">'2'</span><span class="s1">:</span>
+                <span class="s1">view_all_equipment()</span>
+            <span class="s0">elif </span><span class="s1">equipment_choice == </span><span class="s2">'3'</span><span class="s1">:</span>
+                <span class="s1">remove_equipment()</span>
+            <span class="s0">elif </span><span class="s1">equipment_choice == </span><span class="s2">'4'</span><span class="s1">:</span>
+                <span class="s0">break</span>
+            <span class="s0">else</span><span class="s1">:</span>
+                <span class="s1">print(</span><span class="s2">&quot;Invalid choice. Please enter a number between 1 and 4.&quot;</span><span class="s1">)</span>
+
+    <span class="s0">elif </span><span class="s1">choice == </span><span class="s2">'5'</span><span class="s1">:</span>
+        <span class="s0">break</span>
+
+    <span class="s0">else</span><span class="s1">:</span>
+        <span class="s1">print(</span><span class="s2">&quot;Invalid choice. Please enter a number between 1 and 5.&quot;</span><span class="s1">)</span>
+
+<span class="s1">conn.close()</span>
+</pre>
+</body>
+</html>
